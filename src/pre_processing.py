@@ -74,7 +74,7 @@ class ProcessedData():
         #self._convert_dataframe_to_tensor(self._feature_dataframe)
 
     def _convert_dataframe_strs_to_dummy(self,dataframe):
-        converted_dataframe_dummy = pd.get_dummies(dataframe,drop_first=True)
+        converted_dataframe_dummy = pd.get_dummies(dataframe)
         self._logger.debug(f'{converted_dataframe_dummy.dtypes}')
         return converted_dataframe_dummy
 
@@ -137,7 +137,10 @@ class Data():
         self._dataframe = self._create_dataframe(csv_path)
 
     def _create_dataframe(self,csv_path:str) -> 'dataframe':
-        return pd.read_csv(csv_path)
+        csv = pd.read_csv(csv_path)
+        self._logger.debug(f"{csv['label'].drop_duplicates()}")
+        self._logger.debug(f"length{len(csv['label'].drop_duplicates())}")
+        return csv
 
     @property
     def dtypes(self):
