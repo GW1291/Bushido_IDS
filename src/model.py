@@ -16,6 +16,7 @@ class Model():
 
     def set_ANN_model(self) -> 'assign':
         self._Model = keras.Sequential()
+        self._Model.add(keras.layers.BatchNormalization())
         self._Model.add(keras.layers.Dense(64,activation="relu", name="dense_0"))
         self._Model.add(keras.layers.Dropout(0.2))
 
@@ -26,6 +27,7 @@ class Model():
     def set_small_RNN_model(self) -> 'assign':
         self._Model = keras.Sequential()
         
+        self._Model.add(keras.layers.BatchNormalization())
         self._Model.add(keras.layers.LSTM(256,return_sequences=True,activation="tanh"))
         self._Model.add(keras.layers.Dropout(0.2))
 
@@ -41,6 +43,7 @@ class Model():
     def set_BIG_RNN_model(self) -> 'assign':
         self._Model = keras.Sequential()
         
+        self._Model.add(keras.layers.BatchNormalization())
         self._Model.add(keras.layers.LSTM(512,return_sequences=True,activation="tanh"))
         self._Model.add(keras.layers.Dropout(0.2))
 
@@ -54,29 +57,29 @@ class Model():
         self._Model.add(keras.layers.Dropout(0.2))
 
         self._Model.add(keras.layers.Dense(38,activation="softmax", name="predict"))
-        self._Model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['CategoricalAccuracy'])
+        self._Model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['CategoricalAccuracy','Recall','Precision',tf.keras.metrics.AUC(multi_label=True)])
 
     def fit_model(self):
         self._Model.fit(
             self._Data.ProcessedData._X_train_dataframe.values,
             self._Data.ProcessedData._y_train_dataframe.values,
-            epochs=3,batch_size=64,
+            epochs=5,batch_size=64,
             validation_data=(self._Data.ProcessedData._X_test_dataframe.values,
                              self._Data.ProcessedData._y_test_dataframe.values)
             )
 
     def fit_model_tf(self):
-        X_train = tModel._Data.ProcessedData._X_train_dataframe.values
-        y_train = tModel._Data.ProcessedData._y_train_dataframe.values
+        X_train = self._Data.ProcessedData._X_train_dataframe.values
+        y_train = self._Data.ProcessedData._y_train_dataframe.values
         tf_train_dataset = keras.preprocessing.timeseries_dataset_from_array(X_train,y_train,10)
 
-        X_test = tModel._Data.ProcessedData._X_test_dataframe.values
-        y_test = tModel._Data.ProcessedData._y_test_dataframe.values
+        X_test = self._Data.ProcessedData._X_test_dataframe.values
+        y_test = self._Data.ProcessedData._y_test_dataframe.values
         tf_test_dataset = keras.preprocessing.timeseries_dataset_from_array(X_test,y_test,10)
 
         self._Model.fit(
             tf_train_dataset,
-            epochs=5,batch_size=38,
+            epochs=5,batch_size=64,
             validation_data=tf_test_dataset
             )
 
@@ -84,6 +87,14 @@ class Model():
         return self._Model.predict(x_new_array)
 
 
+
+
+
+
+
+
+#debug info
+"""
 tModel = Model()
 #x_array = tModel._Data.ProcessedData._X_train_dataframe.values
 #y_array = tModel._Data.ProcessedData._y_train_dataframe.values
@@ -93,8 +104,7 @@ tModel.set_small_RNN_model()
 #tModel.set_BIG_RNN_model()
 #tModel.fit_model()
 tModel.fit_model_tf()
-tModel._Model.save('bushido')
-"""
+
 print(tModel._Data.ProcessedData._X_train_dataframe.dtypes)
 print(tModel._Data.ProcessedData._y_train_dataframe.dtypes)
 

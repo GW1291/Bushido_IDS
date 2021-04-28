@@ -70,20 +70,11 @@ class ProcessedData():
 
         self._testing_dataset = self._create_tensorflow_dataset(self._X_test_dataframe,self._y_test_dataframe)
 
-        #self._convert_dataframe_to_tensor(self._label_dataframe)
-        #self._convert_dataframe_to_tensor(self._feature_dataframe)
 
     def _convert_dataframe_strs_to_dummy(self,dataframe):
         converted_dataframe_dummy = pd.get_dummies(dataframe)
         self._logger.debug(f'{converted_dataframe_dummy.dtypes}')
         return converted_dataframe_dummy
-
-    #TODO: deprecate
-    def _convert_dataframe_dtype_float16(self,dataframe):
-        converted_dataframe_dummy_float16 = dataframe.astype('float16')
-        self._logger.debug(f'{converted_dataframe_dummy_float16.dtypes}')
-        #return converted_dataframe_dummy_float16
-        return dataframe
 
     def _create_label_feature_dataframes(self,dataframe)-> tuple:
         label_dataframe = pd.DataFrame()
@@ -97,12 +88,6 @@ class ProcessedData():
         feature_dataframe = dataframe
         return label_dataframe,feature_dataframe
 
-    def _convert_dataframe_to_tensor(self,dataframe):
-        #tensor = tf.data.Dataset.from_tensor_slices((dataframe.values))
-        tensor = K.constant(dataframe.values)
-        self._logger.debug(f'Label dataframe\n {K.eval(tensor)}')
-        return tensor
-    
     def _split_dataframe_20_80(self,feature_dataframe,label_dataframe):
         X_train, X_test, y_train, y_test = train_test_split(feature_dataframe, label_dataframe, test_size=0.20, random_state=42)
         return  X_train, X_test, y_train, y_test 
@@ -140,6 +125,7 @@ class Data():
         csv = pd.read_csv(csv_path)
         self._logger.debug(f"{csv['label'].drop_duplicates()}")
         self._logger.debug(f"length{len(csv['label'].drop_duplicates())}")
+        self._logger.debug(f"shape {csv.shape}")
         return csv
 
     @property
